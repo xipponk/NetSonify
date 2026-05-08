@@ -1,23 +1,47 @@
+print("NetSonify v1.0 - Network Audio Sonification Tool")
+print("Starting up...")
+
 import argparse
-from src.sniffer import PacketSniffer
-from src.player import AudioPlayer
+import yaml
+from collections import deque
+import threading
+import time
+import sys
 
-
-def main():
-    parser = argparse.ArgumentParser(description='NetSonify - Network Packet Sonification')
-    parser.add_argument('-i', '--iface', type=str, default='eth0', help='Network interface to sniff on')
-    parser.add_argument('-c', '--config', type=str, default='config/default.yaml', help='Path to config file')
+try:
+    parser = argparse.ArgumentParser(description='NetSonify: Network Packet Sonification')
+    parser.add_argument('-i', '--iface', required=True, help='Network interface to sniff on')
+    parser.add_argument('-c', '--config', default='config/default.yaml', help='Path to config file')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('--record', action='store_true', help='Record audio to file')
-    parser.add_argument('--no-vis', action='store_true', help='Disable terminal visualizer')
-    
+    parser.add_argument('--no-vis', action='store_true', help='Disable visualizer')
     args = parser.parse_args()
-    
-    sniffer = PacketSniffer(iface=args.iface)
-    sniffer.start()
-    
-    player = AudioPlayer(sniffer.deque)
-    player.play()
 
-if __name__ == '__main__':
-    main()
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+except Exception as e:
+    print(f"Error loading config: {e}")
+    sys.exit(1)
+
+packet_queue = deque(maxlen=1000)
+stop_event = threading.Event()
+
+from .sniffer import PacketSniffer
+from .player import AudioPlayer
+
+sniffer = PacketSniffer(iface=args.iface, queue=packet_queue)
+player = AudioPlayer(queue=packet_queue, config=config, record=args.record, no_vis=args.no_vis)
+
+sniffer.start(daemon=True)
+player.start(daemon=True)
+
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    stop_event.set()
+    print("Stopping...")
+    sys.exit(0)
+except Exception as e:
+    print(f"Critical error: {e}")
+    sys.exit(1)
