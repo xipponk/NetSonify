@@ -10,6 +10,7 @@ class PacketSniffer:
         if packet.haslayer(IP):
             print(f"Packet captured: {packet[IP].src} -> {packet[IP].dst}", flush=True)
             self.deque.append(packet)
+            print("Packet added to queue", flush=True)
 
     def start(self):
         self.sniffer.start()

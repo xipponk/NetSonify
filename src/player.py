@@ -18,12 +18,14 @@ class AudioPlayer:
     def play(self):
         while self.packet_deque:
             packet = self.packet_deque.popleft()
+            print("Player got packet from queue", flush=True)
             freq, pan = self.mapper.map_packet(packet)
             note = generate_note(freq, duration=0.1, pan=pan, amplitude=0.5, sr=self.sr)
+            print(f"Note generated: freq={freq}", flush=True)
             sd.play(note, samplerate=self.sr)
             sd.wait()
             if self.recorder is not None:
-                print(f"Writing {len(note)} samples to recorder", flush=True)
+                print(f"recorder.write() called with {len(note)} frames", flush=True)
                 self.recorder.write(note)
 
     def start(self, daemon=False):
