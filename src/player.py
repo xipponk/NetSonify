@@ -5,12 +5,13 @@ from .mapper import PacketMapper
 from .synth import generate_note
 
 class AudioPlayer:
-    def __init__(self, packet_deque, sr=44100, config=None, record=False, no_vis=False):
+    def __init__(self, packet_deque, sr=44100, config=None, record=False, no_vis=False, recorder=None):
         self.packet_deque = packet_deque
         self.sr = sr
         self.config = config
         self.record = record
         self.no_vis = no_vis
+        self.recorder = recorder
         self.mapper = PacketMapper()
         self._thread = None
 
@@ -21,6 +22,8 @@ class AudioPlayer:
             note = generate_note(freq, duration=0.1, pan=pan, amplitude=0.5, sr=self.sr)
             sd.play(note, samplerate=self.sr)
             sd.wait()
+            if self.recorder is not None:
+                self.recorder.write(note)
 
     def start(self, daemon=False):
         self._thread = threading.Thread(target=self.play, daemon=daemon)
