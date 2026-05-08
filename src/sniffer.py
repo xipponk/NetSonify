@@ -8,6 +8,7 @@ class PacketSniffer:
 
     def _callback(self, packet):
         if packet.haslayer(IP):
+            print(f"Packet captured: {packet[IP].src} -> {packet[IP].dst}", flush=True)
             self.deque.append(packet)
 
     def start(self):

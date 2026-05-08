@@ -23,6 +23,7 @@ class AudioPlayer:
             sd.play(note, samplerate=self.sr)
             sd.wait()
             if self.recorder is not None:
+                print(f"Writing {len(note)} samples to recorder", flush=True)
                 self.recorder.write(note)
 
     def start(self, daemon=False):
