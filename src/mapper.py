@@ -1,4 +1,4 @@
-from scapy.all import IP, TCP, UDP
+from scapy.all import IP, TCP, UDP, ICMP
 
 class PacketMapper:
     def map_packet(self, packet):

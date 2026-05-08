@@ -17,31 +17,20 @@ class AudioPlayer:
         self._thread = None
 
     def play(self):
-<<<<<<< Updated upstream
-        while self.packet_deque:
-            packet = self.packet_deque.popleft()
-            print("Player got packet from queue", flush=True)
-            freq, pan = self.mapper.map_packet(packet)
-            note = generate_note(freq, duration=0.1, pan=pan, amplitude=0.5, sr=self.sr)
-            print(f"Note generated: freq={freq}", flush=True)
-            sd.play(note, samplerate=self.sr)
-            sd.wait()
-            if self.recorder is not None:
-                print(f"recorder.write() called with {len(note)} frames", flush=True)
-                self.recorder.write(note)
-=======
-        while True:                         
+        while True:
             if self.packet_deque:
                 packet = self.packet_deque.popleft()
                 freq, pan = self.mapper.map_packet(packet)
                 note = generate_note(freq, duration=0.1, pan=pan, amplitude=0.5, sr=self.sr)
-                sd.play(note, samplerate=self.sr)
-                sd.wait()
+                try:
+                    sd.play(note, samplerate=self.sr)
+                    sd.wait()
+                except Exception:
+                    pass  # ไม่มี audio device — ข้ามไป
                 if self.recorder is not None:
                     self.recorder.write(note)
             else:
                 time.sleep(0.01)
->>>>>>> Stashed changes
 
     def start(self, daemon=False):
         self._thread = threading.Thread(target=self.play, daemon=daemon)
