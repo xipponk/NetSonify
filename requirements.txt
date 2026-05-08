@@ -1,0 +1,5 @@
+scapy>=2.5.0
+numpy>=1.26.0
+sounddevice>=0.4.6
+PyYAML>=6.0
+rich>=13.7.0

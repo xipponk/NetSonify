@@ -1,0 +1,5 @@
+iface: eth0
+sample_rate: 44100
+verbose: false
+record: false
+no_vis: false
