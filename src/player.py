@@ -1,13 +1,18 @@
 from collections import deque
+import threading
 import sounddevice as sd
 from .mapper import PacketMapper
 from .synth import generate_note
 
 class AudioPlayer:
-    def __init__(self, packet_deque, sr=44100):
+    def __init__(self, packet_deque, sr=44100, config=None, record=False, no_vis=False):
         self.packet_deque = packet_deque
         self.sr = sr
+        self.config = config
+        self.record = record
+        self.no_vis = no_vis
         self.mapper = PacketMapper()
+        self._thread = None
 
     def play(self):
         while self.packet_deque:
@@ -16,3 +21,11 @@ class AudioPlayer:
             note = generate_note(freq, duration=0.1, pan=pan, amplitude=0.5, sr=self.sr)
             sd.play(note, samplerate=self.sr)
             sd.wait()
+
+    def start(self, daemon=False):
+        self._thread = threading.Thread(target=self.play, daemon=daemon)
+        self._thread.start()
+
+    def stop(self):
+        if self._thread is not None:
+            self._thread.join(timeout=1)
