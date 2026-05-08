@@ -30,9 +30,9 @@ from .sniffer import PacketSniffer
 from .player import AudioPlayer
 
 sniffer = PacketSniffer(iface=args.iface, queue=packet_queue)
-player = AudioPlayer(queue=packet_queue, config=config, record=args.record, no_vis=args.no_vis)
+player = AudioPlayer(packet_deque=packet_queue, config=config, record=args.record, no_vis=args.no_vis)
 
-sniffer.start(daemon=True)
+sniffer.start()
 player.start(daemon=True)
 
 try:
