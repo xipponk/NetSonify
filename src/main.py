@@ -36,7 +36,7 @@ sniffer.start(daemon=True)
 player.start(daemon=True)
 
 try:
-    while True:
+    while not stop_event.is_set():
         time.sleep(1)
 except KeyboardInterrupt:
     stop_event.set()
